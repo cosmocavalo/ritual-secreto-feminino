@@ -1,13 +1,53 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useContentTimer } from "@/hooks/useContentTimer";
+import HeroSection from "@/components/HeroSection";
+import BenefitsSection from "@/components/BenefitsSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import FAQSection from "@/components/FAQSection";
+import CTASection from "@/components/CTASection";
+import FloatingCTA from "@/components/FloatingCTA";
+import TimerOverlay from "@/components/TimerOverlay";
+import Footer from "@/components/Footer";
+import { cn } from "@/lib/utils";
+
+const CHECKOUT_URL = "https://checkout.cacto.com/seu-produto"; // Replace with actual Cacto checkout URL
+const UNLOCK_SECONDS = 40;
 
 const Index = () => {
+  const {
+    isVideoPlaying,
+    secondsRemaining,
+    isContentUnlocked,
+    showTimer,
+    startVideo,
+  } = useContentTimer({ unlockSeconds: UNLOCK_SECONDS });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <main className="min-h-screen bg-background">
+      {/* Hero with VSL */}
+      <HeroSection onVideoStart={startVideo} isPlaying={isVideoPlaying} />
+
+      {/* Timer overlay */}
+      <TimerOverlay seconds={secondsRemaining} visible={showTimer} />
+
+      {/* Hidden content - revealed after timer */}
+      <div
+        className={cn(
+          "transition-all duration-700",
+          isContentUnlocked
+            ? "opacity-100 translate-y-0"
+            : "opacity-0 translate-y-10 pointer-events-none h-0 overflow-hidden"
+        )}
+      >
+        <BenefitsSection />
+        <TestimonialsSection />
+        <CTASection checkoutUrl={CHECKOUT_URL} />
+        <FAQSection />
+        <Footer />
       </div>
-    </div>
+
+      {/* Floating CTA */}
+      <FloatingCTA visible={isContentUnlocked} checkoutUrl={CHECKOUT_URL} />
+    </main>
   );
 };
 
