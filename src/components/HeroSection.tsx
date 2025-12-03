@@ -1,14 +1,16 @@
-import { Play, Volume2 } from "lucide-react";
+import { Play, Volume2, ArrowRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
 interface HeroSectionProps {
   onVideoStart: () => void;
   isPlaying: boolean;
+  isContentUnlocked: boolean;
+  checkoutUrl: string;
 }
 
 const VIDEO_DURATION_SECONDS = 300; // 5 minutes - adjust to actual video length
 
-const HeroSection = ({ onVideoStart, isPlaying }: HeroSectionProps) => {
+const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
   const [showVolumeWarning, setShowVolumeWarning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -151,6 +153,21 @@ const HeroSection = ({ onVideoStart, isPlaying }: HeroSectionProps) => {
           </div>
         )}
       </div>
+
+      {/* CTA Button below VSL - appears after unlock */}
+      {isContentUnlocked && (
+        <div className="mt-8 px-4 animate-fade-in">
+          <a
+            href={checkoutUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-cta flex items-center justify-center gap-2 text-lg mx-auto max-w-md"
+          >
+            <span>Quero Minha Vaga Agora</span>
+            <ArrowRight className="w-5 h-5" />
+          </a>
+        </div>
+      )}
 
       {/* Trust indicators */}
       <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-sm text-muted-foreground animate-fade-in px-4" style={{ animationDelay: '0.4s' }}>
