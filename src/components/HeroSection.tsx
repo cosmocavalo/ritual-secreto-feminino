@@ -77,7 +77,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
     };
   }, [isPlaying, playerReady, checkVolume]);
 
-  // Progress bar update
+  // Progress bar update - faster at start, syncs with video after 50%
   useEffect(() => {
     if (!isPlaying || !playerReady) return;
 
@@ -88,16 +88,27 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
           const duration = playerRef.current.getDuration();
           
           if (duration > 0) {
-            const normalizedTime = currentTime / duration;
-            const easedProgress = 1 - Math.pow(1 - normalizedTime, 0.7);
-            const progressPercent = Math.min(easedProgress * 100, 100);
+            const normalizedTime = currentTime / duration; // 0 to 1
+            
+            let visualProgress: number;
+            
+            if (normalizedTime <= 0.5) {
+              // First half: progress bar goes faster (reaches ~70% when video is at 50%)
+              visualProgress = normalizedTime * 1.4; // 0.5 * 1.4 = 0.7 (70%)
+            } else {
+              // Second half: slow down to sync - map 0.5-1.0 video time to 0.7-1.0 visual
+              const secondHalfProgress = (normalizedTime - 0.5) / 0.5; // 0 to 1 for second half
+              visualProgress = 0.7 + (secondHalfProgress * 0.3); // 0.7 to 1.0
+            }
+            
+            const progressPercent = Math.min(visualProgress * 100, 100);
             setProgress(progressPercent);
           }
         } catch (error) {
           console.log("Could not get video progress");
         }
       }
-    }, 1000);
+    }, 500);
 
     return () => clearInterval(interval);
   }, [isPlaying, playerReady]);
