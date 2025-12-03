@@ -6,7 +6,19 @@ interface FloatingCTAProps {
   checkoutUrl: string;
 }
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 const FloatingCTA = ({ visible, checkoutUrl }: FloatingCTAProps) => {
+  const trackInitiateCheckout = () => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -27,6 +39,7 @@ const FloatingCTA = ({ visible, checkoutUrl }: FloatingCTAProps) => {
           href={checkoutUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackInitiateCheckout}
           className="btn-cta flex items-center gap-2 text-base whitespace-nowrap"
         >
           <span>Quero Minha Vaga</span>

@@ -10,7 +10,7 @@ import TimerOverlay from "@/components/TimerOverlay";
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
-const CHECKOUT_URL = "https://checkout.cacto.com/seu-produto"; // Replace with actual Cacto checkout URL
+const CHECKOUT_URL = "https://pay.cakto.com.br/xyxyod5_668610";
 const UNLOCK_SECONDS = 40;
 
 const Index = () => {

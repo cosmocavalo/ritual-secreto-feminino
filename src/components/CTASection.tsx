@@ -4,7 +4,19 @@ interface CTASectionProps {
   checkoutUrl: string;
 }
 
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
 const CTASection = ({ checkoutUrl }: CTASectionProps) => {
+  const trackInitiateCheckout = () => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+    }
+  };
+
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-background to-primary/5">
       <div className="container max-w-3xl mx-auto text-center">
@@ -28,6 +40,7 @@ const CTASection = ({ checkoutUrl }: CTASectionProps) => {
           href={checkoutUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackInitiateCheckout}
           className="btn-cta inline-flex items-center gap-3 text-lg animate-pulse-soft"
         >
           <span>Garanta Minha Vaga Agora</span>
