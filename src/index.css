@@ -6,47 +6,48 @@
 
 @layer base {
   :root {
-    /* Premium feminine palette */
+    /* Snow white & feminine pink palette */
     --background: 0 0% 100%;
-    --foreground: 0 0% 8%;
+    --foreground: 340 10% 15%;
 
-    --card: 0 0% 99%;
-    --card-foreground: 0 0% 8%;
+    --card: 340 30% 99%;
+    --card-foreground: 340 10% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
+    --popover-foreground: 340 10% 15%;
 
-    /* Deep passionate red */
-    --primary: 0 78% 45%;
+    /* Feminine pink */
+    --primary: 340 65% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 0 78% 55%;
+    --primary-glow: 340 70% 65%;
 
     /* Soft blush for secondary elements */
-    --secondary: 0 20% 96%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 340 30% 96%;
+    --secondary-foreground: 340 10% 20%;
 
-    --muted: 0 10% 95%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 340 15% 95%;
+    --muted-foreground: 340 10% 45%;
 
-    /* Gold accent for premium feel */
-    --accent: 38 65% 50%;
+    /* Rose gold accent */
+    --accent: 340 50% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 10% 90%;
-    --input: 0 10% 90%;
-    --ring: 0 78% 45%;
+    --border: 340 20% 90%;
+    --input: 340 20% 90%;
+    --ring: 340 65% 55%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(0 78% 45%), hsl(0 78% 38%));
-    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(0 20% 98%) 100%);
-    --shadow-elegant: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
-    --shadow-cta: 0 8px 30px -8px hsl(0 78% 45% / 0.4);
-    --shadow-card: 0 2px 12px -2px hsl(0 0% 0% / 0.08);
+    --gradient-primary: linear-gradient(135deg, hsl(340 65% 55%), hsl(340 65% 45%));
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(340 30% 98%) 100%);
+    --shadow-elegant: 0 4px 20px -4px hsl(340 30% 20% / 0.1);
+    --shadow-cta: 0 8px 30px -8px hsl(340 65% 55% / 0.4);
+    --shadow-card: 0 2px 12px -2px hsl(340 30% 20% / 0.08);
+    --shadow-progress: 0 4px 15px -2px hsl(340 65% 55% / 0.5);
 
     /* Typography */
     --font-display: 'Playfair Display', Georgia, serif;
@@ -54,25 +55,25 @@
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 0 78% 55%;
+    --background: 340 10% 5%;
+    --foreground: 340 10% 95%;
+    --card: 340 10% 8%;
+    --card-foreground: 340 10% 95%;
+    --popover: 340 10% 8%;
+    --popover-foreground: 340 10% 95%;
+    --primary: 340 65% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 10% 15%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 10% 15%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 38 65% 55%;
+    --secondary: 340 15% 15%;
+    --secondary-foreground: 340 10% 95%;
+    --muted: 340 15% 15%;
+    --muted-foreground: 340 10% 60%;
+    --accent: 340 50% 65%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 10% 20%;
-    --input: 0 10% 20%;
-    --ring: 0 78% 55%;
+    --border: 340 15% 20%;
+    --input: 340 15% 20%;
+    --ring: 340 65% 60%;
   }
 }
 
@@ -144,8 +145,24 @@
   }
 
   .video-container {
-    @apply relative w-full aspect-video bg-foreground/5 rounded-xl overflow-hidden;
+    @apply relative w-full aspect-video bg-foreground/5 overflow-hidden;
     box-shadow: var(--shadow-elegant);
+  }
+
+  .progress-bar {
+    @apply h-1.5 bg-primary rounded-full;
+    box-shadow: var(--shadow-progress);
+    transition: width 0.3s ease-out;
+  }
+
+  .volume-warning {
+    @apply absolute inset-0 flex flex-col items-center justify-center bg-foreground/90 text-background z-10;
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 }
 
