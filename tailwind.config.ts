@@ -86,9 +86,10 @@ export default {
         "scale-in": "scale-in 0.4s ease-out forwards",
       },
       boxShadow: {
-        'elegant': '0 4px 20px -4px hsl(0 0% 0% / 0.1)',
-        'cta': '0 8px 30px -8px hsl(0 78% 45% / 0.4)',
-        'card': '0 2px 12px -2px hsl(0 0% 0% / 0.08)',
+        'elegant': '0 4px 20px -4px hsl(340 30% 20% / 0.1)',
+        'cta': '0 8px 30px -8px hsl(340 65% 55% / 0.4)',
+        'card': '0 2px 12px -2px hsl(340 30% 20% / 0.08)',
+        'progress': '0 4px 15px -2px hsl(340 65% 55% / 0.5)',
       },
     },
   },
