@@ -1,5 +1,6 @@
-import { Play, Volume2, ArrowRight } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { ArrowRight, Volume2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import YouTube, { YouTubePlayer, YouTubeEvent } from "react-youtube";
 
 interface HeroSectionProps {
   onVideoStart: () => void;
@@ -8,77 +9,127 @@ interface HeroSectionProps {
   checkoutUrl: string;
 }
 
-const VIDEO_DURATION_SECONDS = 300; // 5 minutes - adjust to actual video length
+declare global {
+  interface Window {
+    fbq: (...args: any[]) => void;
+  }
+}
+
+const VIDEO_ID = "NBmJHhb1Dxw";
 
 const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
   const [showVolumeWarning, setShowVolumeWarning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [playerReady, setPlayerReady] = useState(false);
+  const playerRef = useRef<YouTubePlayer | null>(null);
+  const volumeCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check audio volume (this uses a workaround since we can't directly access device volume)
-  const checkVolumeAndStart = useCallback(async () => {
-    try {
-      // Create a temporary audio context to check if audio is available
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      
-      // Try to get audio output info - if user has volume very low, we show warning
-      // Note: We can't directly read device volume, so we check if audio is muted/very low
-      // by attempting to use the Audio API
-      const testAudio = new Audio();
-      testAudio.volume = 0.5;
-      
-      // Check if device likely has low volume using navigator.mediaDevices
-      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const hasAudioOutput = devices.some(device => device.kind === 'audiooutput');
+  const trackInitiateCheckout = () => {
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+    }
+  };
+
+  // Check volume periodically
+  const checkVolume = useCallback(() => {
+    if (playerRef.current) {
+      try {
+        const volume = playerRef.current.getVolume();
+        const isMuted = playerRef.current.isMuted();
         
-        if (hasAudioOutput) {
-          // Show volume warning on first play - user should verify their volume
+        if (volume < 50 || isMuted) {
           setShowVolumeWarning(true);
-          audioContext.close();
-          return;
+          
+          // Hide warning after 5 seconds
+          if (warningTimeoutRef.current) {
+            clearTimeout(warningTimeoutRef.current);
+          }
+          warningTimeoutRef.current = setTimeout(() => {
+            setShowVolumeWarning(false);
+          }, 5000);
+        } else {
+          setShowVolumeWarning(false);
+          if (warningTimeoutRef.current) {
+            clearTimeout(warningTimeoutRef.current);
+          }
         }
+      } catch (error) {
+        console.log("Could not check volume");
       }
-      
-      audioContext.close();
-      startVideo();
-    } catch (error) {
-      // If audio context fails, show volume warning anyway
-      setShowVolumeWarning(true);
     }
   }, []);
 
-  const startVideo = () => {
-    setShowVolumeWarning(false);
-    onVideoStart();
-  };
-
-  const dismissWarningAndPlay = () => {
-    startVideo();
-  };
-
-  // Progress bar effect - starts faster, then slows down
+  // Start volume checking when video plays
   useEffect(() => {
-    if (!isPlaying) return;
+    if (isPlaying && playerReady) {
+      checkVolume();
+      volumeCheckIntervalRef.current = setInterval(checkVolume, 10000);
+    }
+
+    return () => {
+      if (volumeCheckIntervalRef.current) {
+        clearInterval(volumeCheckIntervalRef.current);
+      }
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
+      }
+    };
+  }, [isPlaying, playerReady, checkVolume]);
+
+  // Progress bar update
+  useEffect(() => {
+    if (!isPlaying || !playerReady) return;
 
     const interval = setInterval(() => {
-      setElapsedTime(prev => {
-        const newTime = prev + 1;
-        
-        // Easing function: starts fast, slows down
-        // Uses an ease-out curve that eventually catches up to real time
-        const normalizedTime = newTime / VIDEO_DURATION_SECONDS;
-        const easedProgress = 1 - Math.pow(1 - normalizedTime, 0.7);
-        const progressPercent = Math.min(easedProgress * 100, 100);
-        
-        setProgress(progressPercent);
-        
-        return newTime;
-      });
+      if (playerRef.current) {
+        try {
+          const currentTime = playerRef.current.getCurrentTime();
+          const duration = playerRef.current.getDuration();
+          
+          if (duration > 0) {
+            const normalizedTime = currentTime / duration;
+            const easedProgress = 1 - Math.pow(1 - normalizedTime, 0.7);
+            const progressPercent = Math.min(easedProgress * 100, 100);
+            setProgress(progressPercent);
+          }
+        } catch (error) {
+          console.log("Could not get video progress");
+        }
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, playerReady]);
+
+  const onPlayerReady = (event: YouTubeEvent) => {
+    playerRef.current = event.target;
+    setPlayerReady(true);
+    event.target.playVideo();
+    onVideoStart();
+  };
+
+  const onPlayerStateChange = (event: YouTubeEvent) => {
+    if (event.data === 1) {
+      setTimeout(checkVolume, 1000);
+    }
+  };
+
+  const opts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 1,
+      controls: 0,
+      modestbranding: 1,
+      rel: 0,
+      showinfo: 0,
+      fs: 0,
+      iv_load_policy: 3,
+      disablekb: 1,
+      playsinline: 1,
+    },
+  };
 
   return (
     <section className="min-h-screen flex flex-col items-center justify-center px-0 py-12 bg-gradient-to-b from-background to-secondary/30">
@@ -103,41 +154,32 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
       </div>
 
       {/* Video Container - Full Width */}
-      <div className="w-full animate-fade-in" style={{ animationDelay: '0.3s' }}>
+      <div className="w-full animate-fade-in relative" style={{ animationDelay: '0.3s' }}>
         <div className="video-container w-full rounded-none">
-          {showVolumeWarning ? (
-            <div className="volume-warning">
-              <Volume2 className="w-16 h-16 mb-4 text-primary animate-pulse" />
-              <h3 className="text-xl sm:text-2xl font-display font-bold mb-2">
-                Aumente o volume!
-              </h3>
-              <p className="text-sm sm:text-base mb-6 text-center max-w-md px-4 opacity-90">
-                Para descobrir o segredo, certifique-se de que o volume do seu dispositivo está acima de 50%
-              </p>
-              <button
-                onClick={dismissWarningAndPlay}
-                className="btn-cta px-8 py-3"
-              >
-                <span>Meu volume está alto, continuar</span>
-              </button>
-            </div>
-          ) : !isPlaying ? (
-            <button
-              onClick={checkVolumeAndStart}
-              className="absolute inset-0 flex flex-col items-center justify-center bg-foreground/5 hover:bg-foreground/10 transition-colors group"
-            >
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-primary rounded-full flex items-center justify-center shadow-cta group-hover:scale-110 transition-transform">
-                <Play className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground ml-1" fill="currentColor" />
-              </div>
-              <span className="mt-4 text-foreground font-medium text-sm sm:text-base">
-                Clique para assistir o vídeo
-              </span>
-            </button>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-foreground/5">
-              <div className="text-center p-8">
-                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground">Carregando vídeo...</p>
+          <YouTube
+            videoId={VIDEO_ID}
+            opts={opts}
+            onReady={onPlayerReady}
+            onStateChange={onPlayerStateChange}
+            className="absolute inset-0 w-full h-full"
+            iframeClassName="w-full h-full"
+          />
+          
+          {/* Volume Warning Popup */}
+          {showVolumeWarning && (
+            <div className="absolute inset-0 flex items-center justify-center bg-foreground/80 z-10 animate-fade-in">
+              <div className="bg-background rounded-2xl p-8 max-w-md mx-4 text-center shadow-elegant">
+                <Volume2 className="w-16 h-16 mb-4 text-primary animate-pulse mx-auto" />
+                <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 text-foreground">
+                  Volume muito baixo!
+                </h3>
+                <p className="text-sm sm:text-base mb-4 text-muted-foreground">
+                  Aumente o volume do seu dispositivo acima de 50% para entender o segredo completo do ritual.
+                </p>
+                <div className="flex items-center justify-center gap-2 text-primary">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                  <span className="text-sm font-medium">Aguardando aumento de volume...</span>
+                </div>
               </div>
             </div>
           )}
@@ -161,6 +203,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             href={checkoutUrl}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={trackInitiateCheckout}
             className="btn-cta flex items-center justify-center gap-2 text-lg mx-auto max-w-md"
           >
             <span>Quero Minha Vaga Agora</span>
