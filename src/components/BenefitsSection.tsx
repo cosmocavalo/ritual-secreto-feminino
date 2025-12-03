@@ -40,7 +40,7 @@ const benefits = [
 
 const BenefitsSection = () => {
   return (
-    <section className="py-20 px-4 bg-secondary/30">
+    <section id="benefits-section" className="py-20 px-4 bg-secondary/30">
       <div className="container max-w-5xl mx-auto">
         <div className="text-center mb-14">
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mb-4">

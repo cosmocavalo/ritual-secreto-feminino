@@ -1,4 +1,5 @@
 import { useContentTimer } from "@/hooks/useContentTimer";
+import { useBenefitsVisibility } from "@/hooks/useBenefitsVisibility";
 import HeroSection from "@/components/HeroSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -21,10 +22,17 @@ const Index = () => {
     startVideo,
   } = useContentTimer({ unlockSeconds: UNLOCK_SECONDS });
 
+  const hasSeenBenefits = useBenefitsVisibility();
+
   return (
     <main className="min-h-screen bg-background">
       {/* Hero with VSL */}
-      <HeroSection onVideoStart={startVideo} isPlaying={isVideoPlaying} />
+      <HeroSection 
+        onVideoStart={startVideo} 
+        isPlaying={isVideoPlaying}
+        isContentUnlocked={isContentUnlocked}
+        checkoutUrl={CHECKOUT_URL}
+      />
 
       {/* Timer overlay */}
       <TimerOverlay seconds={secondsRemaining} visible={showTimer} />
@@ -45,8 +53,8 @@ const Index = () => {
         <Footer />
       </div>
 
-      {/* Floating CTA */}
-      <FloatingCTA visible={isContentUnlocked} checkoutUrl={CHECKOUT_URL} />
+      {/* Floating CTA - appears after viewing benefits section */}
+      <FloatingCTA visible={hasSeenBenefits} checkoutUrl={CHECKOUT_URL} />
     </main>
   );
 };
