@@ -6,7 +6,7 @@ import TestimonialsSection from "@/components/TestimonialsSection";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import FloatingCTA from "@/components/FloatingCTA";
-import TimerOverlay from "@/components/TimerOverlay";
+
 import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
@@ -34,8 +34,6 @@ const Index = () => {
         checkoutUrl={CHECKOUT_URL}
       />
 
-      {/* Timer overlay */}
-      <TimerOverlay seconds={secondsRemaining} visible={showTimer} />
 
       {/* Hidden content - revealed after timer */}
       <div
