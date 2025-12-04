@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import { cn } from "@/lib/utils";
 
 const CHECKOUT_URL = "https://pay.cakto.com.br/xyxyod5_668610";
-const UNLOCK_SECONDS = 40;
+const UNLOCK_SECONDS = 337; // 5 minutes and 37 seconds
 
 const Index = () => {
   const {

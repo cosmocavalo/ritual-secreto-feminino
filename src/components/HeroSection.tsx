@@ -1,5 +1,5 @@
-import { ArrowRight, Volume2 } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { ArrowRight, Play } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import YouTube, { YouTubePlayer, YouTubeEvent } from "react-youtube";
 
 interface HeroSectionProps {
@@ -15,67 +15,19 @@ declare global {
   }
 }
 
-const VIDEO_ID = "NBmJHhb1Dxw";
+const VIDEO_ID = "3-FbqvbwLRg";
 
 const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
-  const [showVolumeWarning, setShowVolumeWarning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const playerRef = useRef<YouTubePlayer | null>(null);
-  const volumeCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const trackInitiateCheckout = () => {
     if (typeof window !== 'undefined' && window.fbq) {
       window.fbq('track', 'InitiateCheckout');
     }
   };
-
-  // Check volume periodically
-  const checkVolume = useCallback(() => {
-    if (playerRef.current) {
-      try {
-        const volume = playerRef.current.getVolume();
-        const isMuted = playerRef.current.isMuted();
-        
-        if (volume < 50 || isMuted) {
-          setShowVolumeWarning(true);
-          
-          // Hide warning after 5 seconds
-          if (warningTimeoutRef.current) {
-            clearTimeout(warningTimeoutRef.current);
-          }
-          warningTimeoutRef.current = setTimeout(() => {
-            setShowVolumeWarning(false);
-          }, 5000);
-        } else {
-          setShowVolumeWarning(false);
-          if (warningTimeoutRef.current) {
-            clearTimeout(warningTimeoutRef.current);
-          }
-        }
-      } catch (error) {
-        console.log("Could not check volume");
-      }
-    }
-  }, []);
-
-  // Start volume checking when video plays
-  useEffect(() => {
-    if (isPlaying && playerReady) {
-      checkVolume();
-      volumeCheckIntervalRef.current = setInterval(checkVolume, 10000);
-    }
-
-    return () => {
-      if (volumeCheckIntervalRef.current) {
-        clearInterval(volumeCheckIntervalRef.current);
-      }
-      if (warningTimeoutRef.current) {
-        clearTimeout(warningTimeoutRef.current);
-      }
-    };
-  }, [isPlaying, playerReady, checkVolume]);
 
   // Progress bar update - faster at start, syncs with video after 50%
   useEffect(() => {
@@ -116,13 +68,19 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
   const onPlayerReady = (event: YouTubeEvent) => {
     playerRef.current = event.target;
     setPlayerReady(true);
-    event.target.playVideo();
-    onVideoStart();
   };
 
   const onPlayerStateChange = (event: YouTubeEvent) => {
-    if (event.data === 1) {
-      setTimeout(checkVolume, 1000);
+    // Video started playing (state 1)
+    if (event.data === 1 && !hasStarted) {
+      setHasStarted(true);
+      onVideoStart();
+    }
+  };
+
+  const handlePlayerClick = () => {
+    if (playerRef.current && !hasStarted) {
+      playerRef.current.playVideo();
     }
   };
 
@@ -130,7 +88,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
     height: '100%',
     width: '100%',
     playerVars: {
-      autoplay: 1,
+      autoplay: 0,
       controls: 0,
       modestbranding: 1,
       rel: 0,
@@ -176,21 +134,22 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             iframeClassName="w-full h-full"
           />
           
-          {/* Volume Warning Popup */}
-          {showVolumeWarning && (
-            <div className="absolute inset-0 flex items-center justify-center bg-foreground/80 z-10 animate-fade-in">
-              <div className="bg-background rounded-2xl p-8 max-w-md mx-4 text-center shadow-elegant">
-                <Volume2 className="w-16 h-16 mb-4 text-primary animate-pulse mx-auto" />
-                <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 text-foreground">
-                  Volume muito baixo!
-                </h3>
-                <p className="text-sm sm:text-base mb-4 text-muted-foreground">
-                  Aumente o volume do seu dispositivo acima de 50% para entender o segredo completo do ritual.
-                </p>
-                <div className="flex items-center justify-center gap-2 text-primary">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                  <span className="text-sm font-medium">Aguardando aumento de volume...</span>
+          {/* Click to Play Overlay */}
+          {!hasStarted && playerReady && (
+            <div 
+              className="absolute inset-0 flex items-center justify-center bg-foreground/60 z-10 cursor-pointer animate-fade-in"
+              onClick={handlePlayerClick}
+            >
+              <div className="text-center">
+                <div className="bg-primary rounded-full p-6 mb-4 mx-auto w-fit animate-pulse shadow-elegant">
+                  <Play className="w-12 h-12 text-primary-foreground" fill="currentColor" />
                 </div>
+                <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 text-background">
+                  Clique no player, e descubra o segredo
+                </h3>
+                <p className="text-sm sm:text-base text-background/80">
+                  Não estará disponível por muito tempo.
+                </p>
               </div>
             </div>
           )}
