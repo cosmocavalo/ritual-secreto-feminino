@@ -109,11 +109,11 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
           Vídeo grátis, irá sair do ar em breve
         </div>
 
-        {/* Headline - smaller */}
+        {/* Headline */}
         <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight mb-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          O Ritual Secreto que{" "}
-          <span className="text-gradient">Destranca</span> o Metabolismo{" "}
-          <span className="text-gradient">Feminino</span>
+          Veja o vídeo curto abaixo e descubra o{" "}
+          <span className="text-gradient">tônico secreto</span> que destranca o{" "}
+          <span className="text-gradient">metabolismo feminino</span>
         </h1>
 
       </div>
