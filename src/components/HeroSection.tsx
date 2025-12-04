@@ -130,24 +130,29 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             iframeClassName="w-full h-full"
           />
           
-          {/* Click to Play Overlay */}
-          {!hasStarted && playerReady && (
+          {/* Click to Play Overlay - Black background before start */}
+          {!hasStarted && (
             <div 
-              className="absolute inset-0 flex items-center justify-center bg-foreground/60 z-10 cursor-pointer animate-fade-in"
+              className="absolute inset-0 flex items-center justify-center bg-black z-10 cursor-pointer animate-fade-in"
               onClick={handlePlayerClick}
             >
               <div className="text-center">
                 <div className="bg-primary rounded-full p-6 mb-4 mx-auto w-fit animate-pulse shadow-elegant">
                   <Play className="w-12 h-12 text-primary-foreground" fill="currentColor" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 text-background">
-                  Clique no player, e descubra o segredo
+                <h3 className="text-xl sm:text-2xl font-display font-bold mb-2 text-white">
+                  Clique no botão rosa, e descubra o segredo
                 </h3>
-                <p className="text-sm sm:text-base text-background/80">
+                <p className="text-sm sm:text-base text-white/80">
                   Não estará disponível por muito tempo.
                 </p>
               </div>
             </div>
+          )}
+          
+          {/* Invisible overlay to prevent YouTube UI interaction after video starts */}
+          {hasStarted && (
+            <div className="absolute inset-0 z-10 cursor-default" />
           )}
         </div>
 
