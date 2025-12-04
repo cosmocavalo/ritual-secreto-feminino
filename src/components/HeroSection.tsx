@@ -106,7 +106,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 animate-fade-in">
           <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-          Método exclusivo para mulheres
+          Vídeo grátis, irá sair do ar em breve
         </div>
 
         {/* Headline - smaller */}
