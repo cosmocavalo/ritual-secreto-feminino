@@ -66,21 +66,39 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
   }, [isPlaying, playerReady]);
 
   const onPlayerReady = (event: YouTubeEvent) => {
-    playerRef.current = event.target;
-    setPlayerReady(true);
-  };
-
-  const onPlayerStateChange = (event: YouTubeEvent) => {
-    // Video started playing (state 1)
-    if (event.data === 1 && !hasStarted) {
-      setHasStarted(true);
-      onVideoStart();
+    try {
+      playerRef.current = event.target;
+      setPlayerReady(true);
+    } catch (error) {
+      console.log("Player ready error:", error);
     }
   };
 
+  const onPlayerStateChange = (event: YouTubeEvent) => {
+    try {
+      // Video started playing (state 1)
+      if (event.data === 1 && !hasStarted) {
+        setHasStarted(true);
+        onVideoStart();
+      }
+    } catch (error) {
+      console.log("Player state change error:", error);
+    }
+  };
+
+  const onPlayerError = (event: YouTubeEvent) => {
+    console.log("YouTube player error:", event.data);
+  };
+
   const handlePlayerClick = () => {
-    if (playerRef.current && !hasStarted) {
-      playerRef.current.playVideo();
+    if (!hasStarted) {
+      try {
+        if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+          playerRef.current.playVideo();
+        }
+      } catch (error) {
+        console.log("Play video error:", error);
+      }
     }
   };
 
@@ -126,6 +144,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             opts={opts}
             onReady={onPlayerReady}
             onStateChange={onPlayerStateChange}
+            onError={onPlayerError}
             className="absolute inset-0 w-full h-full"
             iframeClassName="w-full h-full"
           />
