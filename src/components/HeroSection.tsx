@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-const VIDEO_ID = "3-FbqvbwLRg";
+const VIDEO_ID = "aa9-AJQ14Yk";
 
 const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
   const [progress, setProgress] = useState(0);
@@ -116,10 +116,6 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
           <span className="text-gradient">Feminino</span>
         </h1>
 
-        {/* Subheadline - smaller */}
-        <p className="font-body text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          Descubra como milhares de mulheres estão eliminando até 7kg em 21 dias com um simples tônico matinal — sem dietas restritivas, sem academia.
-        </p>
       </div>
 
       {/* Video Container - Full Width */}
