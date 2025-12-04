@@ -45,12 +45,12 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             let visualProgress: number;
             
             if (normalizedTime <= 0.5) {
-              // First half: progress bar goes faster (reaches ~70% when video is at 50%)
-              visualProgress = normalizedTime * 1.4; // 0.5 * 1.4 = 0.7 (70%)
+              // First half of video: bar advances quickly to 50%
+              // Map 0-0.5 video time to 0-0.5 bar progress with acceleration
+              visualProgress = normalizedTime * 1.0; // reaches 50% when video is at 50%
             } else {
-              // Second half: slow down to sync - map 0.5-1.0 video time to 0.7-1.0 visual
-              const secondHalfProgress = (normalizedTime - 0.5) / 0.5; // 0 to 1 for second half
-              visualProgress = 0.7 + (secondHalfProgress * 0.3); // 0.7 to 1.0
+              // Second half: sync perfectly with video - map 0.5-1.0 video to 0.5-1.0 bar
+              visualProgress = normalizedTime;
             }
             
             const progressPercent = Math.min(visualProgress * 100, 100);
@@ -115,6 +115,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
       iv_load_policy: 3,
       disablekb: 1,
       playsinline: 1,
+      mute: 0,
     },
   };
 
