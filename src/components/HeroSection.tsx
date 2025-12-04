@@ -80,6 +80,12 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
       if (event.data === 1 && !hasStarted) {
         setHasStarted(true);
         onVideoStart();
+        
+        // Force unmute in case browser blocked audio
+        if (playerRef.current && typeof playerRef.current.unMute === 'function') {
+          playerRef.current.unMute();
+          playerRef.current.setVolume(100);
+        }
       }
     } catch (error) {
       console.log("Player state change error:", error);
