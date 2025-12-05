@@ -16,11 +16,13 @@ declare global {
 }
 
 const VIDEO_ID = "aa9-AJQ14Yk";
+const THUMBNAIL_URL = `https://img.youtube.com/vi/${VIDEO_ID}/maxresdefault.jpg`;
 
 const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
   const [progress, setProgress] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [shouldLoadPlayer, setShouldLoadPlayer] = useState(false);
   const playerRef = useRef<YouTubePlayer | null>(null);
 
   const trackInitiateCheckout = () => {
@@ -40,16 +42,13 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
           const duration = playerRef.current.getDuration();
           
           if (duration > 0) {
-            const normalizedTime = currentTime / duration; // 0 to 1
+            const normalizedTime = currentTime / duration;
             
             let visualProgress: number;
             
             if (normalizedTime <= 0.5) {
-              // First half of video: bar advances quickly to 50%
-              // Map 0-0.5 video time to 0-0.5 bar progress with acceleration
-              visualProgress = normalizedTime * 1.0; // reaches 50% when video is at 50%
+              visualProgress = normalizedTime * 1.0;
             } else {
-              // Second half: sync perfectly with video - map 0.5-1.0 video to 0.5-1.0 bar
               visualProgress = normalizedTime;
             }
             
@@ -69,6 +68,10 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
     try {
       playerRef.current = event.target;
       setPlayerReady(true);
+      // Auto-play when player is ready (user already clicked)
+      if (shouldLoadPlayer) {
+        event.target.playVideo();
+      }
     } catch (error) {
       console.log("Player ready error:", error);
     }
@@ -76,12 +79,10 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
 
   const onPlayerStateChange = (event: YouTubeEvent) => {
     try {
-      // Video started playing (state 1)
       if (event.data === 1 && !hasStarted) {
         setHasStarted(true);
         onVideoStart();
         
-        // Force unmute in case browser blocked audio
         if (playerRef.current && typeof playerRef.current.unMute === 'function') {
           playerRef.current.unMute();
           playerRef.current.setVolume(100);
@@ -96,12 +97,14 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
     console.log("YouTube player error:", event.data);
   };
 
+  const handleThumbnailClick = () => {
+    setShouldLoadPlayer(true);
+  };
+
   const handlePlayerClick = () => {
-    if (!hasStarted) {
+    if (!hasStarted && playerRef.current) {
       try {
-        if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-          playerRef.current.playVideo();
-        }
+        playerRef.current.playVideo();
       } catch (error) {
         console.log("Play video error:", error);
       }
@@ -112,7 +115,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
     height: '100%',
     width: '100%',
     playerVars: {
-      autoplay: 0,
+      autoplay: 1,
       controls: 0,
       modestbranding: 1,
       rel: 0,
@@ -146,23 +149,56 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
       {/* Video Container - Full Width */}
       <div className="w-full animate-fade-in relative" style={{ animationDelay: '0.3s' }}>
         <div className="video-container w-full rounded-none">
-          <YouTube
-            videoId={VIDEO_ID}
-            opts={opts}
-            onReady={onPlayerReady}
-            onStateChange={onPlayerStateChange}
-            onError={onPlayerError}
-            className="absolute inset-0 w-full h-full"
-            iframeClassName="w-full h-full"
-          />
-          
-          {/* Click to Play Overlay - Visual only before start */}
-          {!hasStarted && (
+          {/* Lazy-loaded YouTube Player */}
+          {shouldLoadPlayer ? (
+            <>
+              <YouTube
+                videoId={VIDEO_ID}
+                opts={opts}
+                onReady={onPlayerReady}
+                onStateChange={onPlayerStateChange}
+                onError={onPlayerError}
+                className="absolute inset-0 w-full h-full"
+                iframeClassName="w-full h-full"
+              />
+              
+              {/* Invisible overlay to prevent YouTube UI - ONLY after video starts */}
+              {hasStarted && (
+                <div className="absolute inset-0 z-10 cursor-default" />
+              )}
+              
+              {/* Loading state while player initializes */}
+              {!hasStarted && (
+                <div 
+                  className="absolute inset-0 flex items-center justify-center bg-black z-10 cursor-pointer"
+                  onClick={handlePlayerClick}
+                >
+                  <div className="text-center pointer-events-none">
+                    <div className="bg-primary rounded-full p-6 mb-4 mx-auto w-fit animate-pulse shadow-elegant">
+                      <Play className="w-12 h-12 text-primary-foreground" fill="currentColor" />
+                    </div>
+                    <p className="text-sm sm:text-base text-white/80">
+                      Carregando vídeo...
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Thumbnail placeholder - loads instantly */
             <div 
-              className="absolute inset-0 flex items-center justify-center bg-black z-10 cursor-pointer animate-fade-in"
-              onClick={handlePlayerClick}
+              className="absolute inset-0 flex items-center justify-center bg-black z-10 cursor-pointer"
+              onClick={handleThumbnailClick}
             >
-              <div className="text-center pointer-events-none">
+              {/* Preload thumbnail for faster LCP */}
+              <img 
+                src={THUMBNAIL_URL}
+                alt="Clique para assistir"
+                className="absolute inset-0 w-full h-full object-cover opacity-30"
+                loading="eager"
+                fetchPriority="high"
+              />
+              <div className="text-center relative z-10">
                 <div className="bg-primary rounded-full p-6 mb-4 mx-auto w-fit animate-pulse shadow-elegant">
                   <Play className="w-12 h-12 text-primary-foreground" fill="currentColor" />
                 </div>
@@ -174,11 +210,6 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
                 </p>
               </div>
             </div>
-          )}
-          
-          {/* Invisible overlay to prevent YouTube UI - ONLY after video starts */}
-          {hasStarted && (
-            <div className="absolute inset-0 z-10 cursor-default" />
           )}
         </div>
 
