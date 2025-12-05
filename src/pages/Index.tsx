@@ -1,5 +1,6 @@
 import { useContentTimer } from "@/hooks/useContentTimer";
 import { useBenefitsVisibility } from "@/hooks/useBenefitsVisibility";
+import { useBackRedirect } from "@/hooks/useBackRedirect";
 import HeroSection from "@/components/HeroSection";
 import BenefitsSection from "@/components/BenefitsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -14,6 +15,8 @@ const CHECKOUT_URL = "https://pay.cakto.com.br/xyxyod5_668610";
 const UNLOCK_SECONDS = 275; // 4 minutes and 35 seconds
 
 const Index = () => {
+  useBackRedirect();
+  
   const {
     isVideoPlaying,
     secondsRemaining,
