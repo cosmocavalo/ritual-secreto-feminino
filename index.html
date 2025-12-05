@@ -9,22 +9,29 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://ritualsecretofeminino.com" />
 
-    <!-- Preconnect hints for faster resource loading -->
+    <!-- DNS Prefetch and Preconnect for critical resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://img.youtube.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://img.youtube.com" />
-    <link rel="preconnect" href="https://www.youtube.com" />
-    <link rel="preconnect" href="https://connect.facebook.net" />
-    <link rel="preconnect" href="https://www.clarity.ms" />
     
-    <!-- Preload critical LCP image (YouTube thumbnail) -->
-    <link rel="preload" as="image" href="https://img.youtube.com/vi/aa9-AJQ14Yk/maxresdefault.jpg" fetchpriority="high" />
+    <!-- Preload LCP image (smaller thumbnail for faster load) -->
+    <link rel="preload" as="image" href="https://img.youtube.com/vi/aa9-AJQ14Yk/sddefault.jpg" fetchpriority="high" />
     
-    <!-- Preload Google Fonts with display=swap -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'" />
+    <!-- Critical CSS inline for faster FCP -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box}
+      body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif;background:#fffafa;color:#1a1a1a}
+      #root{min-height:100vh}
+      .loading-placeholder{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(to bottom,#fffafa,#fff5f5)}
+    </style>
+
+    <!-- Fonts - load async to not block render -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" media="print" onload="this.media='all'" />
     <noscript>
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" />
     </noscript>
 
     <!-- Open Graph -->
@@ -58,40 +65,38 @@
       }
     }
     </script>
-
-    <!-- Facebook Pixel Code -->
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', '1786727705486426');
-      fbq('track', 'PageView');
-    </script>
-    <!-- End Facebook Pixel Code -->
-
-    <!-- Microsoft Clarity -->
-    <script type="text/javascript">
-      (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-      })(window, document, "clarity", "script", "ug9eq9odzo");
-    </script>
-    <!-- End Microsoft Clarity -->
   </head>
 
   <body>
-    <!-- Facebook Pixel noscript fallback -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Analytics loaded after page content (non-blocking) -->
+    <script>
+      window.addEventListener('load', function() {
+        // Facebook Pixel - deferred
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1786727705486426');
+        fbq('track', 'PageView');
+        
+        // Microsoft Clarity - deferred
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "ug9eq9odzo");
+      });
+    </script>
     <noscript>
       <img height="1" width="1" style="display:none"
            src="https://www.facebook.com/tr?id=1786727705486426&ev=PageView&noscript=1"/>
     </noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
