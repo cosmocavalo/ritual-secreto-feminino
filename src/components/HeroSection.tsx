@@ -156,13 +156,13 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             iframeClassName="w-full h-full"
           />
           
-          {/* Click to Play Overlay - Black background before start */}
+          {/* Click to Play Overlay - Visual only before start */}
           {!hasStarted && (
             <div 
               className="absolute inset-0 flex items-center justify-center bg-black z-10 cursor-pointer animate-fade-in"
               onClick={handlePlayerClick}
             >
-              <div className="text-center">
+              <div className="text-center pointer-events-none">
                 <div className="bg-primary rounded-full p-6 mb-4 mx-auto w-fit animate-pulse shadow-elegant">
                   <Play className="w-12 h-12 text-primary-foreground" fill="currentColor" />
                 </div>
@@ -176,7 +176,7 @@ const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }
             </div>
           )}
           
-          {/* Invisible overlay to prevent YouTube UI interaction after video starts */}
+          {/* Invisible overlay to prevent YouTube UI - ONLY after video starts */}
           {hasStarted && (
             <div className="absolute inset-0 z-10 cursor-default" />
           )}
