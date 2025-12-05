@@ -16,7 +16,8 @@ declare global {
 }
 
 const VIDEO_ID = "aa9-AJQ14Yk";
-const THUMBNAIL_URL = `https://img.youtube.com/vi/${VIDEO_ID}/maxresdefault.jpg`;
+// Use smaller thumbnail for faster LCP (sddefault = 640x480, maxresdefault = 1280x720)
+const THUMBNAIL_URL = `https://img.youtube.com/vi/${VIDEO_ID}/sddefault.jpg`;
 
 const HeroSection = ({ onVideoStart, isPlaying, isContentUnlocked, checkoutUrl }: HeroSectionProps) => {
   const [progress, setProgress] = useState(0);
